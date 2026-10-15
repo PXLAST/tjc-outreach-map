@@ -22,8 +22,8 @@ async function startMap(){
 function initializeMap(){
 
 const C=[51.52873,-0.08773], R=500, colors=['#2777b9','#30955c','#e59425','#9255a5']; const $=id=>document.getElementById(id);let db,rows=[],selected=null,point=null,adding=false,channel;
-const map=L.map('map').setView(C,16);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);L.circle(C,{radius:R,color:'#1e293b',weight:2,dashArray:'6 5',fillOpacity:0}).addTo(map);L.marker(C).addTo(map).bindPopup('True Jesus Church London · 57–63 East Road');
-function dest(deg,m){let a=deg*Math.PI/180;return [C[0]+m*Math.cos(a)/111320,C[1]+m*Math.sin(a)/(111320*Math.cos(C[0]*Math.PI/180))]};function sector(a,b,color){let pts=[C];for(let d=a;d<=b;d+=2)pts.push(dest(d,R));pts.push(dest(b,R));L.polygon(pts,{color,weight:2,fillColor:color,fillOpacity:.09}).addTo(map)}[0,1,2,3].forEach(i=>sector(i*90,(i+1)*90,colors[i]));map.fitBounds(L.circle(C,{radius:R}).getBounds());
+const map=L.map('map').setView(C,16);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);const boundaryCircle=L.circle(C,{radius:R,color:'#1e293b',weight:2,dashArray:'6 5',fillOpacity:0}).addTo(map);L.marker(C).addTo(map).bindPopup('True Jesus Church London · 57–63 East Road');
+function dest(deg,m){let a=deg*Math.PI/180;return [C[0]+m*Math.cos(a)/111320,C[1]+m*Math.sin(a)/(111320*Math.cos(C[0]*Math.PI/180))]};function sector(a,b,color){let pts=[C];for(let d=a;d<=b;d+=2)pts.push(dest(d,R));pts.push(dest(b,R));L.polygon(pts,{color,weight:2,fillColor:color,fillOpacity:.09}).addTo(map)}[0,1,2,3].forEach(i=>sector(i*90,(i+1)*90,colors[i]));map.fitBounds(boundaryCircle.getBounds());
 const markers=L.layerGroup().addTo(map);function distance(p){return Math.hypot((p.lat-C[0])*111320,(p.lng-C[1])*111320*Math.cos(C[0]*Math.PI/180))};function getTeam(p){let a=(Math.atan2((p.lng-C[1])*Math.cos(C[0]*Math.PI/180),p.lat-C[0])*180/Math.PI+360)%360;return Math.floor(a/90)+1};function msg(s){$('message').textContent=s};function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))};
 function render(){markers.clearLayers();let tf=$('filterTeam').value,af=$('filterAccess').value;rows.forEach(r=>{if(tf!=='all'&&Number(tf)!==r.team)return;if(af!=='all'&&(r.completed?'done':r.access)!==af)return;let color=r.completed?'#2563eb':({green:'#16a34a',amber:'#f59e0b',red:'#dc2626'}[r.access]||'#f59e0b');let marker=L.circleMarker([r.lat,r.lng],{radius:9,color:'#fff',weight:2,fillColor:color,fillOpacity:1}).addTo(markers);marker.bindTooltip((r.completed?'✓ ':'')+r.name);marker.on('click',()=>edit(r))});$('stats').textContent=`${rows.length} buildings · ${rows.filter(r=>r.completed).length} leafleted · ${rows.filter(r=>r.access==='amber'&&!r.completed).length} awaiting access review`};
 async function reload(){
@@ -50,4 +50,5 @@ try {
 }
 startMap();
 </script></body></html>
+
 
